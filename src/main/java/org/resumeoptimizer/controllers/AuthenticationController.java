@@ -5,6 +5,11 @@ import jakarta.servlet.http.HttpSession;
 import org.resumeoptimizer.entities.User;
 import org.resumeoptimizer.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -13,6 +18,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.util.List;
 import java.util.UUID;
 
 @Controller
@@ -70,16 +76,35 @@ public class AuthenticationController {
         return "login";
     }
 
+    /*
     // Guest login
     @GetMapping("/guest")
-    public String guestLogin(HttpSession session) {
+    public String guestLogin(HttpServletRequest request) {
         // Create a guest user session
         User guestUser = new User();
         guestUser.setUsername("guest_" + UUID.randomUUID());
         guestUser.setRole("GUEST");
-        session.setAttribute("guestUser", guestUser);
+        request.getSession().setAttribute("user", guestUser);
         return "redirect:/upload";
     }
+    */
+
+    @GetMapping("/guest")
+    public String guestLogin(HttpServletRequest request) {
+    // Create a guest user
+    User guestUser = new User();
+    guestUser.setUsername("guest_" + UUID.randomUUID());
+    guestUser.setRole("ROLE_GUEST");
+
+    // Set authentication
+    List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority("GUEST"));
+    Authentication auth = new UsernamePasswordAuthenticationToken(guestUser, null, authorities);
+    SecurityContextHolder.getContext().setAuthentication(auth);
+
+    // Store user in session (optional, for app logic)
+    request.getSession().setAttribute("user", guestUser);
+    return "redirect:/upload";
+}
 
     @GetMapping("/home")
     public String home() {

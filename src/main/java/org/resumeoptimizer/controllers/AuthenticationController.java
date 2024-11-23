@@ -76,33 +76,21 @@ public class AuthenticationController {
         return "login";
     }
 
-    /*
-    // Guest login
-    @GetMapping("/guest")
-    public String guestLogin(HttpServletRequest request) {
-        // Create a guest user session
-        User guestUser = new User();
-        guestUser.setUsername("guest_" + UUID.randomUUID());
-        guestUser.setRole("GUEST");
-        request.getSession().setAttribute("user", guestUser);
-        return "redirect:/upload";
-    }
-    */
-
     @GetMapping("/guest")
     public String guestLogin(HttpServletRequest request) {
     // Create a guest user
     User guestUser = new User();
     guestUser.setUsername("guest_" + UUID.randomUUID());
-    guestUser.setRole("ROLE_GUEST");
+    guestUser.setRole("GUEST");
 
     // Set authentication
-    List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority("GUEST"));
+    List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority("ROLE_GUEST"));
     Authentication auth = new UsernamePasswordAuthenticationToken(guestUser, null, authorities);
-    SecurityContextHolder.getContext().setAuthentication(auth);
 
-    // Store user in session (optional, for app logic)
-    request.getSession().setAttribute("user", guestUser);
+    // Persist authentication in SecurityContextHolder and session
+    SecurityContextHolder.getContext().setAuthentication(auth);
+    request.getSession().setAttribute("SPRING_SECURITY_CONTEXT", SecurityContextHolder.getContext());
+
     return "redirect:/upload";
 }
 

@@ -36,6 +36,7 @@ public class UploadController {
     public String handleFileUpload(@RequestParam("resume") MultipartFile resume,
                                    @RequestParam("jobDesc") MultipartFile jobDesc,
                                    Principal principal) throws IOException {
+
         // Get current user
         User user = userService.findByUsername(principal.getName());
 

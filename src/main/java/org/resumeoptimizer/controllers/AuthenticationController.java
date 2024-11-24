@@ -1,7 +1,6 @@
 package org.resumeoptimizer.controllers;
 
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpSession;
 import org.resumeoptimizer.entities.User;
 import org.resumeoptimizer.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,7 +9,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,6 +17,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 @Controller
@@ -66,10 +65,19 @@ public class AuthenticationController {
     public String login(@ModelAttribute("user") User user, Model model, HttpServletRequest request) {
         User existingUser = userService.findByUsername(user.getUsername());
         if (existingUser == null) {
-            model.addAttribute("error", "User does not exist");
+            String errorName = "User does not exist";
+            System.out.println("Error: " + errorName);
+            model.addAttribute("error", errorName);
         } else if (!userService.matchesPassword(user.getPassword(), existingUser.getPassword())) {
-            model.addAttribute("error", "Password is incorrect");
-        } else {
+            String errorName = "Password is incorrect";
+            System.out.println("Error: " + errorName);
+            model.addAttribute("error", errorName);
+        } else if (Objects.equals(existingUser.getRole(), "GUEST")){
+            String errorName = "Cannot login as guest";
+            System.out.println("Error: " + errorName);
+            model.addAttribute("error", errorName);
+        }
+        else {
             request.getSession().setAttribute("user", existingUser);
             return "redirect:/upload";
         }
@@ -78,21 +86,24 @@ public class AuthenticationController {
 
     @GetMapping("/guest")
     public String guestLogin(HttpServletRequest request) {
-    // Create a guest user
-    User guestUser = new User();
-    guestUser.setUsername("guest_" + UUID.randomUUID());
-    guestUser.setRole("GUEST");
+        // Create a guest user
+        User guestUser = new User();
+        guestUser.setUsername("guest_" + UUID.randomUUID());
+        guestUser.setPassword(UUID.randomUUID().toString());
+        guestUser.setRole("GUEST");
+        System.out.println("Guest user: " + guestUser.getUsername() + " " + guestUser.getPassword());
+        userService.save(guestUser);
 
-    // Set authentication
-    List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority("ROLE_GUEST"));
-    Authentication auth = new UsernamePasswordAuthenticationToken(guestUser, null, authorities);
+        // Set authentication
+        List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority("ROLE_GUEST"));
+        Authentication auth = new UsernamePasswordAuthenticationToken(guestUser, null, authorities);
 
-    // Persist authentication in SecurityContextHolder and session
-    SecurityContextHolder.getContext().setAuthentication(auth);
-    request.getSession().setAttribute("SPRING_SECURITY_CONTEXT", SecurityContextHolder.getContext());
+        // Persist authentication in SecurityContextHolder and session
+        SecurityContextHolder.getContext().setAuthentication(auth);
+        request.getSession().setAttribute("SPRING_SECURITY_CONTEXT", SecurityContextHolder.getContext());
 
-    return "redirect:/upload";
-}
+        return "redirect:/upload";
+    }
 
     @GetMapping("/home")
     public String home() {

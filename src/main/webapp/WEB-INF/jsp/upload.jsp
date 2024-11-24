@@ -130,6 +130,7 @@
     <p class="upload-instructions">Upload your files in pdf format. Your resume will be scored with the job description
         to provide you with the best possible matches.</p>
     <form action="/upload" method="post" enctype="multipart/form-data">
+        <input type="hidden" name="_csrf" value="${_csrf.token}"/>
         <div class="file-upload-container">
             <div>
                 <h3>Resume</h3>

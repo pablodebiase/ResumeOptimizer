@@ -60,6 +60,7 @@ public class AuthenticationController {
         return "login";
     }
 
+    /* // Not being used
     // Handle login POST (if needed)
     @PostMapping("/login")
     public String login(@ModelAttribute("user") User user, Model model, HttpServletRequest request) {
@@ -83,16 +84,15 @@ public class AuthenticationController {
         }
         return "login";
     }
+    */
 
     @GetMapping("/guest")
     public String guestLogin(HttpServletRequest request) {
         // Create a guest user
         User guestUser = new User();
         guestUser.setUsername("guest_" + UUID.randomUUID());
-        guestUser.setPassword(UUID.randomUUID().toString());
         guestUser.setRole("GUEST");
-        System.out.println("Guest user: " + guestUser.getUsername() + " " + guestUser.getPassword());
-        userService.save(guestUser);
+        userService.setGuestUsername(guestUser.getUsername());
 
         // Set authentication
         List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority("ROLE_GUEST"));

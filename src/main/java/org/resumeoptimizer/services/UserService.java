@@ -1,5 +1,7 @@
 package org.resumeoptimizer.services;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.resumeoptimizer.entities.User;
 import org.resumeoptimizer.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +24,10 @@ public class UserService implements UserDetailsService {
     private final PasswordEncoder passwordEncoder;
 
     private final UserRepository userRepository;
+
+    @Getter
+    @Setter
+    private String guestUsername;
 
     @Autowired
     public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {

@@ -3,13 +3,11 @@ package org.resumeoptimizer.controllers;
 import org.apache.tomcat.util.http.fileupload.FileUtils;
 import org.resumeoptimizer.entities.UploadSession;
 import org.resumeoptimizer.entities.User;
-import org.resumeoptimizer.services.UserService;
 import org.resumeoptimizer.repositories.UploadSessionRepository;
-import org.resumeoptimizer.websocket.WebSocketServer;
+import org.resumeoptimizer.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
@@ -99,39 +97,62 @@ public class UploadController {
         session.setEpoch(System.currentTimeMillis());
         session.setScore(0.0);
         uploadSessionRepository.save(session);
-        session.setScore(100.0);
-        uploadSessionRepository.save(session);
+
+        /*
+        Optional<UploadSession> session2 = uploadSessionRepository.findById(session.getId());
+        if (session2.isPresent()) {
+            session2.get().setScore(45.0);
+            uploadSessionRepository.save(session2.get());
+        }
+        */
 
         // Redirect to processing page or result page
         return "redirect:/process/" + session.getId();
     }
-
+/*
     @GetMapping("/process/{id}")
     public String process(@PathVariable Long id) {
         // Create a new thread to execute the commands
-        Thread thread = new Thread(() -> {
-            try {
-                // Execute the commands
-                String home = System.getProperty("user.home");
-                Process process = Runtime.getRuntime().exec(new String[] {
-                    "cd", home + "/ats/Resume-Matcher",
-                    "venv/bin/python", "run_first.py",
-                    "venv/bin/streamlit", "run", "streamlit_app.py", "--server.headless", "true"
-                });
+        // Execute the commands
+        String home = System.getProperty("user.home");
 
-                // Send log output to the client
-                WebSocketServer webSocketServer = new WebSocketServer();
-                webSocketServer.sendLogOutput(process.getInputStream(), id);
+        ProcessBuilder processBuilder = new ProcessBuilder();
+        processBuilder.command("sh", "-c", String.join(" && ",
+                "cd " + home + "/ats/Resume-Matcher",
+                "venv/bin/python run_first.py",
+                "venv/bin/streamlit run streamlit_app.py --server.headless true"));
 
-                // Wait for the process to finish
-                process.waitFor();
-            } catch (IOException | InterruptedException e) {
-                // Handle errors
+        processBuilder.redirectErrorStream(true);
+
+        try {
+            Process process = processBuilder.start();
+            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            WebSocketServer webSocketServer = new WebSocketServer();
+            String line;
+            while ((line = reader.readLine()) != null) {
+                System.out.println(line);
+                webSocketServer.sendLineToLogOutput(line, id);
             }
-        });
-        thread.start();
+            process.waitFor();
+        } catch (IOException | InterruptedException e) {
+            LoggerFactory.getLogger(UploadController.class).error("Error while executing command", e);
+        }
+
+            //Process process = Runtime.getRuntime().exec(new String[]{
+            //        "cd", home + "/ats/Resume-Matcher",
+            //        "venv/bin/python", "run_first.py",
+            //        "venv/bin/streamlit", "run", "streamlit_app.py", "--server.headless", "true"
+            //});
+
+            //// Send log output to the client
+            //WebSocketServer webSocketServer = new WebSocketServer();
+            //webSocketServer.sendLogOutput(process.getInputStream(), id);
+
+            //// Wait for the process to finish
+            //process.waitFor();
 
         // Return the HTML page to display the log output
         return "process-log";
-}
+    }
+    */
 }

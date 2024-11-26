@@ -1,10 +1,3 @@
-<%--
-  Created by IntelliJ IDEA.
-  User: hongo
-  Date: 2024-11-24
-  Time: 9:03 p.m.
-  To change this template use File | Settings | File Templates.
---%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <!DOCTYPE html>
 <html>
@@ -42,6 +35,12 @@
             // Open a new tab to http://localhost:8501
             window.open('http://localhost:8501', '_blank');
         };
+
+        // Handle errors
+        socket.onerror = (error) => {
+            logsElement.textContent += '\nAn error occurred: ' + error.message;
+        };
+
     </script>
 </body>
 </html>

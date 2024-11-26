@@ -19,7 +19,7 @@ public class SecurityConfig {
         http //.csrf(AbstractHttpConfigurer::disable)
             .authorizeHttpRequests(authz -> authz.dispatcherTypeMatchers(DispatcherType.FORWARD).permitAll()
                 .requestMatchers("/", "/home", "/register", "/login", "/guest").permitAll()
-                .requestMatchers("/upload").hasAnyAuthority("ROLE_USER", "ROLE_GUEST")
+                .requestMatchers("/upload", "/process/**").hasAnyAuthority("ROLE_USER", "ROLE_GUEST")
                 .anyRequest().authenticated()
             )
             .formLogin(form -> form

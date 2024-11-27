@@ -141,7 +141,7 @@
                 <input type="file" name="jobDesc" accept=".pdf" required/>
             </div>
         </div>
-        <button type="submit" class="submit-button">Upload</button>
+        <button type="submit" class="submit-button">Process</button>
     </form>
 </div>
 </body>

@@ -2,7 +2,6 @@ package org.resumeoptimizer.config;
 
 import org.springframework.lang.NonNull;
 import org.springframework.context.annotation.Bean;
-import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
@@ -24,7 +23,7 @@ public class WebConfig implements WebMvcConfigurer {
         registry.addInterceptor(csrfTokenInterceptor);
     }
 
-    // Attempt to fix frame log
+    // Attempt to fix frame log, it may not be needed now
     @Bean
     public WebMvcConfigurer corsConfigurer() {
         return new WebMvcConfigurer() {
@@ -34,5 +33,4 @@ public class WebConfig implements WebMvcConfigurer {
             }
         };
     }
-
 }

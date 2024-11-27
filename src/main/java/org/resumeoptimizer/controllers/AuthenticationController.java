@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.UUID;
 
 @Controller
@@ -59,32 +58,6 @@ public class AuthenticationController {
         }
         return "login";
     }
-
-    /* // Not being used
-    // Handle login POST (if needed)
-    @PostMapping("/login")
-    public String login(@ModelAttribute("user") User user, Model model, HttpServletRequest request) {
-        User existingUser = userService.findByUsername(user.getUsername());
-        if (existingUser == null) {
-            String errorName = "User does not exist";
-            System.out.println("Error: " + errorName);
-            model.addAttribute("error", errorName);
-        } else if (!userService.matchesPassword(user.getPassword(), existingUser.getPassword())) {
-            String errorName = "Password is incorrect";
-            System.out.println("Error: " + errorName);
-            model.addAttribute("error", errorName);
-        } else if (Objects.equals(existingUser.getRole(), "GUEST")){
-            String errorName = "Cannot login as guest";
-            System.out.println("Error: " + errorName);
-            model.addAttribute("error", errorName);
-        }
-        else {
-            request.getSession().setAttribute("user", existingUser);
-            return "redirect:/upload";
-        }
-        return "login";
-    }
-    */
 
     @GetMapping("/guest")
     public String guestLogin(HttpServletRequest request) {

@@ -11,28 +11,42 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Streaming Logs</title>
+    <title>Process Logs</title>
+    <style>
+    #log {
+        font-family: monospace;
+        white-space: pre-wrap;
+        background-color: #1e1e1e;
+        color: #c0c0c0;
+        padding: 10px;
+        overflow-y: auto;
+        height: 80vh;
+        border: 1px solid #444;
+        border-radius: 5px;
+    }
+    span {
+            display: inline;
+        }
+</style>
+
 </head>
 <body>
-    <pre id="log-output">Loading logs...</pre>
+    <h1>Process Logs</h1>
+    <pre id="log"></pre>
+
     <script>
-        // Continuously fetch logs
-        async function fetchLogs() {
-            const response = await fetch('/log-stream');
-            const reader = response.body.getReader();
-            const decoder = new TextDecoder("utf-8");
-            const logOutput = document.getElementById("log-output");
+    const logElement = document.getElementById('log');
+    const socket = new WebSocket('ws://localhost:8080/logs');
 
-            while (true) {
-                const { value, done } = await reader.read();
-                if (done) break;
+    socket.onmessage = function (event) {
+        const logLine = event.data; // Expecting HTML-formatted string
+        logElement.innerHTML += logLine; // Use innerHTML to render styles
+        logElement.scrollTop = logElement.scrollHeight; // Auto-scroll to bottom
+    };
 
-                logOutput.textContent += decoder.decode(value);
-                logOutput.scrollTop = logOutput.scrollHeight; // Auto-scroll to the bottom
-            }
-        }
-
-        fetchLogs();
+    socket.onclose = function () {
+        logElement.innerHTML += '<p style="color: red;">Connection closed.</p>';
+    };
     </script>
 </body>
 </html>

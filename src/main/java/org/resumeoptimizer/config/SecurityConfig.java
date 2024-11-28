@@ -20,6 +20,7 @@ public class SecurityConfig {
             .authorizeHttpRequests(authz -> authz.dispatcherTypeMatchers(DispatcherType.FORWARD).permitAll()
                 .requestMatchers("/", "/home", "/register", "/login", "/guest").permitAll()
                 .requestMatchers("/upload", "/process/**").hasAnyAuthority("ROLE_USER", "ROLE_GUEST")
+                .requestMatchers("/return", "/stop").hasAnyAuthority("ROLE_USER", "ROLE_GUEST") // Allow /stop
                 .anyRequest().authenticated()
             )
             .formLogin(form -> form

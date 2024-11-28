@@ -98,14 +98,6 @@ public class UploadController {
         session.setScore(0.0);
         uploadSessionRepository.save(session);
 
-        /*
-        Optional<UploadSession> session2 = uploadSessionRepository.findById(session.getId());
-        if (session2.isPresent()) {
-            session2.get().setScore(45.0);
-            uploadSessionRepository.save(session2.get());
-        }
-        */
-
         // Redirect to processing page or result page
         return "redirect:/process/" + session.getId();
     }

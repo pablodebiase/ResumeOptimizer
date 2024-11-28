@@ -1,6 +1,8 @@
 package org.resumeoptimizer.services;
 
+import org.resumeoptimizer.entities.UploadSession;
 import org.resumeoptimizer.handlers.LogWebSocketHandler;
+import org.resumeoptimizer.repositories.UploadSessionRepository;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -8,18 +10,30 @@ import org.springframework.stereotype.Service;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
 
 @Service
 public class CommandExecutorService {
 
     private final LogWebSocketHandler logWebSocketHandler;
+    private final AtomicReference<Process> runningProcess = new AtomicReference<>();
+
+    public boolean isProcessRunning() {
+        return runningProcess.get() != null;
+    }
 
     public CommandExecutorService(LogWebSocketHandler logWebSocketHandler) {
         this.logWebSocketHandler = logWebSocketHandler;
     }
 
     @Async
-    public void executeCommands(Long id) {
+    public void executeCommands(Long id, UploadSessionRepository uploadSessionRepository) {
+        if (isProcessRunning()) {
+            System.out.println("Process already running, skipping execution.");
+            return;
+        }
+
         String home = System.getProperty("user.home");
         String[] commands = {
                 "cd " + home + "/ats/Resume-Matcher",
@@ -29,9 +43,12 @@ public class CommandExecutorService {
 
         try {
             Process process = executeCommand(commands);
-            logOutput(process);
-        } catch (IOException | InterruptedException e) {
+            runningProcess.set(process);
+            logOutput(process, id, uploadSessionRepository);
+        } catch (IOException e) {
             logWebSocketHandler.broadcast("Error executing commands: " + e.getMessage());
+        } finally {
+            runningProcess.set(null); // Clear when process finishes or is terminated
         }
     }
 
@@ -43,20 +60,70 @@ public class CommandExecutorService {
         return processBuilder.start();
     }
 
-    private void logOutput(Process process) throws IOException, InterruptedException {
-        BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-        String line;
+    private void logOutput(Process process, Long id, UploadSessionRepository uploadSessionRepository) {
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
+            String line;
+            boolean found = false;
 
-        while ((line = reader.readLine()) != null) {
-            System.out.println(line); // Log to terminal
-            logWebSocketHandler.broadcast(line + "\n"); // Send logs to WebSocket clients
+            while ((line = reader.readLine()) != null) {
+                System.out.println(line); // Log to terminal
+                logWebSocketHandler.broadcast(line + "\n"); // Send logs to WebSocket clients
 
-            if (line.contains("You can now view your Streamlit app in your browser")) {
-                openBrowser("http://localhost:8501");
+                if (line.contains("You can now view your Streamlit app in your browser")) {
+                    System.out.println("Detected Streamlit URL phrase. Opening browser...");
+                    openBrowser("http://localhost:8501");
+                }
+
+                if (!found && line.contains("Similarity Score:")) {
+                    found = true;
+                    processScore(line, id, uploadSessionRepository);
+                }
+            }
+        } catch (IOException e) {
+            String message = "Stream closed or error reading logs: " + e.getMessage();
+            System.err.println(message);
+            logWebSocketHandler.broadcast(message);
+        } finally {
+            try {
+                process.waitFor(); // Ensure process termination is handled
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                System.err.println("Process wait interrupted: " + e.getMessage());
+            }
+            runningProcess.set(null); // Clear process reference
+        }
+    }
+
+    private void processScore(String line, Long id, UploadSessionRepository uploadSessionRepository) {
+        String[] parts = line.split("Similarity Score: ");
+        if (parts.length > 1) {
+            try {
+                double score = Double.parseDouble(parts[1].trim());
+                Optional<UploadSession> session = uploadSessionRepository.findById(id);
+                if (session.isPresent()) {
+                    session.get().setScore(score);
+                    uploadSessionRepository.save(session.get());
+                }
+            } catch (NumberFormatException e) {
+                String message = "Failed parsing similarity score: " + e.getMessage();
+                System.err.println(message);
+                logWebSocketHandler.broadcast(message);
             }
         }
+    }
 
-        process.waitFor();
+    public void killProcess() {
+        Process process = runningProcess.getAndSet(null);
+        if (process != null) {
+            process.destroy();
+            String message = "Process terminated by user.";
+            logWebSocketHandler.broadcast(message);
+            System.out.println(message);
+        } else {
+            String message = "No process to terminate.";
+            logWebSocketHandler.broadcast(message);
+            System.out.println(message);
+        }
     }
 
     private void openBrowser(String url) {
@@ -67,12 +134,12 @@ public class CommandExecutorService {
             } else if (os.contains("mac")) {
                 new ProcessBuilder("open", url).start();
             } else if (os.contains("nix") || os.contains("nux")) {
-                new ProcessBuilder("xdg-open", url).start();
+                // new ProcessBuilder("xdg-open", url).start();
+                new ProcessBuilder("google-chrome", "--new-tab", url).start();
             }
             System.out.println("Streamlit app opened in browser: " + url);
         } catch (IOException e) {
             LoggerFactory.getLogger(CommandExecutorService.class).error("Error opening browser", e);
         }
     }
-
 }

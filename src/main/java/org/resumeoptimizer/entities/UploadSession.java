@@ -24,4 +24,8 @@ public class UploadSession {
     private String username;
     private String userRole;
     private Double score;
+
+    public String date() {
+        return new java.text.SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(new java.util.Date(epoch));
+    }
 }

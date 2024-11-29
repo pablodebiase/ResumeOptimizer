@@ -101,8 +101,6 @@
 
         .logout-button {
             position: relative;
-            top: -300px;
-            right: -550px;
             background-color: #ff4c4c;
             color: white;
             border: none;
@@ -115,14 +113,47 @@
         .logout-button:hover {
             background-color: #e60000;
         }
+
+        .dashboard-button {
+            position: relative;
+            background-color: #ffaa4c;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            font-size: 1em;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        .dashboard-button:hover {
+            background-color: #bb7700;
+        }
+
+        .button-group {
+            position: absolute;
+            top: 150px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            justify-content: space-between;
+            width: 500px;
+            align-items: center;
+            padding: 10px 20px;
+            border-radius: 10px;
+        }
     </style>
 </head>
 <body>
 <!-- Logout Button Outside the Main Container -->
-<form action="/logout" method="post">
-    <input type="hidden" name="_csrf" value="${_csrf.token}"/>
-    <button type="submit" class="logout-button">Logout</button>
-</form>
+<div class="button-group">
+    <form action="/dashboard" method="GET">
+        <button type="submit" class="dashboard-button">Dashboard</button>
+    </form>
+    <form action="/logout" method="post">
+        <input type="hidden" name="_csrf" value="${_csrf.token}"/>
+        <button type="submit" class="logout-button">Logout</button>
+    </form>
+</div>
 <div class="upload-container">
     <div class="banner">
         <h1>Resume Optimizer</h1>

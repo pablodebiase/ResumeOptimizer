@@ -52,12 +52,23 @@ public class UserService implements UserDetailsService {
         return passwordEncoder.matches(rawPassword, encodedPassword);
     }
 
+    public User getGuestUser(){
+        User user = new User();
+        user.setUsername(guestUsername);
+        user.setRole("GUEST");
+        return user;
+    }
+
     private Collection<? extends GrantedAuthority> getAuthority(User user) {
         return Collections.singleton(new SimpleGrantedAuthority("ROLE_" + user.getRole()));
     }
 
     public User findByUsername(String username) {
-        return userRepository.findByUsername(username);
+        User user = userRepository.findByUsername(username);
+        if (user == null && !guestUsername.isEmpty()) {
+            user = getGuestUser();
+        }
+        return user;
     }
 
     public void save(User user) {

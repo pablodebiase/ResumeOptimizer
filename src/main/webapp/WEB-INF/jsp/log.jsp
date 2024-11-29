@@ -19,9 +19,13 @@
         }
 
         .button-container {
-            margin-top: 10px;
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
             display: flex;
-            justify-content: flex-start;
+            justify-content: space-between;
+            width: 50px;
+            align-items: center;
             gap: 10px;
         }
 
@@ -47,7 +51,7 @@
         }
 
         .return-button:hover {
-            background-color: darkorange;
+            background-color: #aa6600;
         }
 
         span {

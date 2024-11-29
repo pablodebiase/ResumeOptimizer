@@ -15,6 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.io.IOException;
 import java.security.Principal;
+import java.util.Objects;
 
 @Controller
 public class UploadController {
@@ -47,15 +48,11 @@ public class UploadController {
         String userDir = "users";
         // Check if user is found
         String userFolder;
-        if (user != null) {
+        if (Objects.equals(user.getRole(), "USER")) {
             userFolder = "uploads/" + user.getId();
         } else {
             // Use guest username as fallback
-            String guestUsername = userService.getGuestUsername();
-            userFolder = "uploads/" + guestUsername;
-            user = new User();
-            user.setUsername(guestUsername);
-            user.setRole("GUEST");
+            userFolder = "uploads/" + user.getUsername();
         }
         String epochStr = String.valueOf((int) (System.currentTimeMillis() / 1000));
         String fullPath = home + "/" + resumeMatcherDir + "/" + userDir + "/" + userFolder + "/" + epochStr;

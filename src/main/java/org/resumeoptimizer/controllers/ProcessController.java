@@ -43,7 +43,7 @@ public class ProcessController {
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt(); // Restore interrupted status
         }
-        return "redirect:/upload"; // Redirect to upload page
+        return "redirect:/dashboard"; // Redirect to dashboard page
     }
 
     @PostMapping("/stop")

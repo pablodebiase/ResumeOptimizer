@@ -19,12 +19,12 @@ public class CommandExecutorService {
     private final LogWebSocketHandler logWebSocketHandler;
     private final AtomicReference<Process> runningProcess = new AtomicReference<>();
 
-    public boolean isProcessRunning() {
-        return runningProcess.get() != null;
-    }
-
     public CommandExecutorService(LogWebSocketHandler logWebSocketHandler) {
         this.logWebSocketHandler = logWebSocketHandler;
+    }
+
+    public boolean isProcessRunning() {
+        return runningProcess.get() != null;
     }
 
     @Async

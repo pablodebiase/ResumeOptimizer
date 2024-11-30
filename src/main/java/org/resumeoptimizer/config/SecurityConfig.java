@@ -17,17 +17,17 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http //.csrf(AbstractHttpConfigurer::disable)
-            .authorizeHttpRequests(authz -> authz.dispatcherTypeMatchers(DispatcherType.FORWARD).permitAll()
-                .requestMatchers("/", "/home", "/register", "/login", "/guest").permitAll()
-                .requestMatchers("/upload", "/process/**").hasAnyAuthority("ROLE_USER", "ROLE_GUEST")
-                .requestMatchers("/return", "/stop", "/dashboard", "/scores").hasAnyAuthority("ROLE_USER", "ROLE_GUEST") // Allow /stop
-                // .requestMatchers("/dashboard", "/scores").hasAuthority("ROLE_USER") // Restrict to logged users
-                .anyRequest().authenticated()
-            )
-            .formLogin(form -> form
-                .loginPage("/login").permitAll().defaultSuccessUrl("/dashboard", true).failureUrl("/login?error=true")
-            )
-            .logout(LogoutConfigurer::permitAll);
+                .authorizeHttpRequests(authz -> authz.dispatcherTypeMatchers(DispatcherType.FORWARD).permitAll()
+                        .requestMatchers("/", "/home", "/register", "/login", "/guest").permitAll()
+                        .requestMatchers("/upload", "/process/**").hasAnyAuthority("ROLE_USER", "ROLE_GUEST")
+                        .requestMatchers("/return", "/stop", "/dashboard", "/scores").hasAnyAuthority("ROLE_USER", "ROLE_GUEST") // Allow /stop
+                        // .requestMatchers("/dashboard", "/scores").hasAuthority("ROLE_USER") // Restrict to logged users
+                        .anyRequest().authenticated()
+                )
+                .formLogin(form -> form
+                        .loginPage("/login").permitAll().defaultSuccessUrl("/dashboard", true).failureUrl("/login?error=true")
+                )
+                .logout(LogoutConfigurer::permitAll);
 
         return http.build();
     }

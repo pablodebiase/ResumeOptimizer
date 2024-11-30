@@ -77,17 +77,39 @@ public class LogWebSocketHandler extends TextWebSocketHandler {
 
         for (String code : codes) {
             switch (code) {
-                case "30": styleBuilder.append("color: black;"); break;
-                case "31": styleBuilder.append("color: red;"); break;
-                case "32": styleBuilder.append("color: green;"); break;
-                case "33": styleBuilder.append("color: yellow;"); break;
-                case "34": styleBuilder.append("color: blue;"); break;
-                case "35": styleBuilder.append("color: magenta;"); break;
-                case "36": styleBuilder.append("color: cyan;"); break;
-                case "37": styleBuilder.append("color: white;"); break;
-                case "1": styleBuilder.append("font-weight: bold;"); break;
-                case "0": styleBuilder.append(""); break;
-                default: styleBuilder.append(""); break;
+                case "30":
+                    styleBuilder.append("color: black;");
+                    break;
+                case "31":
+                    styleBuilder.append("color: red;");
+                    break;
+                case "32":
+                    styleBuilder.append("color: green;");
+                    break;
+                case "33":
+                    styleBuilder.append("color: yellow;");
+                    break;
+                case "34":
+                    styleBuilder.append("color: blue;");
+                    break;
+                case "35":
+                    styleBuilder.append("color: magenta;");
+                    break;
+                case "36":
+                    styleBuilder.append("color: cyan;");
+                    break;
+                case "37":
+                    styleBuilder.append("color: white;");
+                    break;
+                case "1":
+                    styleBuilder.append("font-weight: bold;");
+                    break;
+                case "0":
+                    styleBuilder.append("");
+                    break;
+                default:
+                    styleBuilder.append("");
+                    break;
             }
         }
         return !styleBuilder.isEmpty() ? styleBuilder.toString() : null;

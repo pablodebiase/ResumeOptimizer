@@ -52,7 +52,7 @@ public class UserService implements UserDetailsService {
         return passwordEncoder.matches(rawPassword, encodedPassword);
     }
 
-    public User getGuestUser(){
+    public User getGuestUser() {
         User user = new User();
         user.setUsername(guestUsername);
         user.setRole("GUEST");

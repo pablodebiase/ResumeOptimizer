@@ -1,7 +1,7 @@
 package org.resumeoptimizer.controllers;
 
-import org.resumeoptimizer.entities.UploadSession;
-import org.resumeoptimizer.repositories.UploadSessionRepository;
+import org.resumeoptimizer.entities.Session;
+import org.resumeoptimizer.repositories.SessionRepository;
 import org.resumeoptimizer.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -16,19 +16,19 @@ import java.util.stream.Collectors;
 @Controller
 public class ScoresController {
 
-    private final UploadSessionRepository uploadSessionRepository;
+    private final SessionRepository sessionRepository;
     private final UserService userService;
 
     @Autowired
-    public ScoresController(UploadSessionRepository uploadSessionRepository, UserService userService) {
-        this.uploadSessionRepository = uploadSessionRepository;
+    public ScoresController(SessionRepository sessionRepository, UserService userService) {
+        this.sessionRepository = sessionRepository;
         this.userService = userService;
     }
 
     @GetMapping("/scores")
     public String scores(Authentication authentication, Model model) {
         String username = userService.findByUsername(authentication.getName()).getUsername(); // Get logged-in username
-        List<UploadSession> sessions = uploadSessionRepository.findByUsername(username);
+        List<Session> sessions = sessionRepository.findByUsername(username);
 
         // Add scores to the model
         model.addAttribute("scores", sessions.stream()

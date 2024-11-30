@@ -1,6 +1,6 @@
 package org.resumeoptimizer.controllers;
 
-import org.resumeoptimizer.repositories.UploadSessionRepository;
+import org.resumeoptimizer.repositories.SessionRepository;
 import org.resumeoptimizer.services.CommandExecutorService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -13,12 +13,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 @Controller
 public class ProcessController {
 
-    private final UploadSessionRepository uploadSessionRepository;
+    private final SessionRepository sessionRepository;
     private final CommandExecutorService commandExecutorService;
 
     @Autowired
-    public ProcessController(UploadSessionRepository uploadSessionRepository, CommandExecutorService commandExecutorService) {
-        this.uploadSessionRepository = uploadSessionRepository;
+    public ProcessController(SessionRepository sessionRepository, CommandExecutorService commandExecutorService) {
+        this.sessionRepository = sessionRepository;
         this.commandExecutorService = commandExecutorService;
     }
 
@@ -26,7 +26,7 @@ public class ProcessController {
     public String process(@PathVariable Long id, Model model) {
         // Start the command execution asynchronously
         if (!commandExecutorService.isProcessRunning()) {
-            commandExecutorService.executeCommands(id, uploadSessionRepository);
+            commandExecutorService.executeCommands(id, sessionRepository);
         }
 
         // Return the log page immediately

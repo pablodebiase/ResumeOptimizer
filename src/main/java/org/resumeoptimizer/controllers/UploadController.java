@@ -1,9 +1,9 @@
 package org.resumeoptimizer.controllers;
 
 import org.apache.tomcat.util.http.fileupload.FileUtils;
-import org.resumeoptimizer.entities.UploadSession;
+import org.resumeoptimizer.entities.Session;
 import org.resumeoptimizer.entities.User;
-import org.resumeoptimizer.repositories.UploadSessionRepository;
+import org.resumeoptimizer.repositories.SessionRepository;
 import org.resumeoptimizer.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -20,12 +20,12 @@ import java.util.Objects;
 @Controller
 public class UploadController {
 
-    private final UploadSessionRepository uploadSessionRepository;
+    private final SessionRepository sessionRepository;
     private final UserService userService;
 
     @Autowired
-    public UploadController(UploadSessionRepository uploadSessionRepository, UserService userService) {
-        this.uploadSessionRepository = uploadSessionRepository;
+    public UploadController(SessionRepository sessionRepository, UserService userService) {
+        this.sessionRepository = sessionRepository;
         this.userService = userService;
     }
 
@@ -84,7 +84,7 @@ public class UploadController {
         jobDesc.transferTo(new File(jobDescPath + "/" + jobDescFileName));
 
         // Save upload session info
-        UploadSession session = new UploadSession();
+        Session session = new Session();
         session.setResumeFileName(resumeFileName);
         session.setJobDescFileName(jobDescFileName);
         session.setFolderPath(fullPath);
@@ -93,7 +93,7 @@ public class UploadController {
         session.setUserRole(user.getRole());
         session.setEpoch(System.currentTimeMillis());
         session.setScore(0.0);
-        uploadSessionRepository.save(session);
+        sessionRepository.save(session);
 
         // Redirect to processing page or result page
         return "redirect:/process/" + session.getId();

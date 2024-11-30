@@ -27,7 +27,7 @@ public class UserService implements UserDetailsService {
 
     @Getter
     @Setter
-    private String guestUsername;
+    private String guestUsername = "";
 
     @Autowired
     public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {

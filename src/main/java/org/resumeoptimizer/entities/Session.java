@@ -11,8 +11,8 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity
-@Table(name = "upload_sessions")
-public class UploadSession {
+@Table(name = "sessions")
+public class Session {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

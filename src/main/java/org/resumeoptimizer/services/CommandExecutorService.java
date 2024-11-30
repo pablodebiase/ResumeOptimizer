@@ -1,8 +1,8 @@
 package org.resumeoptimizer.services;
 
-import org.resumeoptimizer.entities.UploadSession;
+import org.resumeoptimizer.entities.Session;
 import org.resumeoptimizer.handlers.LogWebSocketHandler;
-import org.resumeoptimizer.repositories.UploadSessionRepository;
+import org.resumeoptimizer.repositories.SessionRepository;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -28,7 +28,7 @@ public class CommandExecutorService {
     }
 
     @Async
-    public void executeCommands(Long id, UploadSessionRepository uploadSessionRepository) {
+    public void executeCommands(Long id, SessionRepository sessionRepository) {
         if (isProcessRunning()) {
             System.out.println("Process already running, skipping execution.");
             return;
@@ -44,7 +44,7 @@ public class CommandExecutorService {
         try {
             Process process = executeCommand(commands);
             runningProcess.set(process);
-            logOutput(process, id, uploadSessionRepository);
+            logOutput(process, id, sessionRepository);
         } catch (IOException e) {
             logWebSocketHandler.broadcast("Error executing commands: " + e.getMessage());
         } finally {
@@ -60,7 +60,7 @@ public class CommandExecutorService {
         return processBuilder.start();
     }
 
-    private void logOutput(Process process, Long id, UploadSessionRepository uploadSessionRepository) {
+    private void logOutput(Process process, Long id, SessionRepository sessionRepository) {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
             String line;
             boolean found = false;
@@ -76,7 +76,7 @@ public class CommandExecutorService {
 
                 if (!found && line.contains("Similarity Score:")) {
                     found = true;
-                    processScore(line, id, uploadSessionRepository);
+                    processScore(line, id, sessionRepository);
                 }
             }
         } catch (IOException e) {
@@ -94,15 +94,15 @@ public class CommandExecutorService {
         }
     }
 
-    private void processScore(String line, Long id, UploadSessionRepository uploadSessionRepository) {
+    private void processScore(String line, Long id, SessionRepository sessionRepository) {
         String[] parts = line.split("Similarity Score: ");
         if (parts.length > 1) {
             try {
                 double score = Double.parseDouble(parts[1].trim());
-                Optional<UploadSession> session = uploadSessionRepository.findById(id);
+                Optional<Session> session = sessionRepository.findById(id);
                 if (session.isPresent()) {
                     session.get().setScore(score);
-                    uploadSessionRepository.save(session.get());
+                    sessionRepository.save(session.get());
                 }
             } catch (NumberFormatException e) {
                 String message = "Failed parsing similarity score: " + e.getMessage();

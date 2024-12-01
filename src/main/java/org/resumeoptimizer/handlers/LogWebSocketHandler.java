@@ -104,11 +104,7 @@ public class LogWebSocketHandler extends TextWebSocketHandler {
                 case "1":
                     styleBuilder.append("font-weight: bold;");
                     break;
-                case "0":
-                    styleBuilder.append("");
-                    break;
-                default:
-                    styleBuilder.append("");
+                default: // case "0":
                     break;
             }
         }

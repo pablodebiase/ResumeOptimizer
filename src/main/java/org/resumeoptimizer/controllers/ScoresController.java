@@ -32,7 +32,10 @@ public class ScoresController {
 
         // Add scores to the model
         model.addAttribute("scores", sessions.stream()
-                .map(session -> Map.of("date", session.date(), "resume", session.getResumeFileName(), "jobDesc", session.getJobDescFileName(), "value", String.format("%.2f", session.getScore() * 100)))
+                .map(session -> Map.of("date", session.date(),
+                                               "resume", session.getResumeFileName(),
+                                               "jobDesc", session.getJobDescFileName(),
+                                               "value", String.format("%.2f", session.getScore() * 100)))
                 .collect(Collectors.toList()));
         return "scores"; // Maps to WEB-INF/views/scores.jsp
     }

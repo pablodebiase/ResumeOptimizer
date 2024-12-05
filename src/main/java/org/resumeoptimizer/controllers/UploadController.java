@@ -1,6 +1,7 @@
 package org.resumeoptimizer.controllers;
 
 import org.apache.tomcat.util.http.fileupload.FileUtils;
+import org.resumeoptimizer.config.FileConfig;
 import org.resumeoptimizer.entities.Session;
 import org.resumeoptimizer.entities.User;
 import org.resumeoptimizer.repositories.SessionRepository;
@@ -43,8 +44,8 @@ public class UploadController {
         User user = userService.findByUsername(principal.getName());
 
         // Create user-specific folder
-        String home = System.getProperty("user.home");
-        String resumeMatcherDir = "ats/Resume-Matcher/Data";
+        FileConfig config = FileConfig.getInstance();
+        String resumeMatcherDir = config.getSetting("resume-matcher.data.path");
         String userDir = "users";
         // Check if user is found
         String userFolder;
@@ -55,7 +56,7 @@ public class UploadController {
             userFolder = "uploads/" + user.getUsername();
         }
         String epochStr = String.valueOf((int) (System.currentTimeMillis() / 1000));
-        String fullPath = home + "/" + resumeMatcherDir + "/" + userDir + "/" + userFolder + "/" + epochStr;
+        String fullPath = resumeMatcherDir + "/" + userDir + "/" + userFolder + "/" + epochStr;
 
         new File(fullPath).mkdirs();
 
@@ -67,8 +68,8 @@ public class UploadController {
         resume.transferTo(new File(fullPath + "/" + resumeFileName));
         jobDesc.transferTo(new File(fullPath + "/" + jobDescFileName));
 
-        String resumesPath = home + "/" + resumeMatcherDir + "/Resumes";
-        String jobDescPath = home + "/" + resumeMatcherDir + "/JobDescription";
+        String resumesPath = config.getSetting("resume-matcher.resume.path");
+        String jobDescPath = config.getSetting("resume-matcher.jobDesc.path");
 
         // Remove all files in resumesPath and jobDescPath
         try {

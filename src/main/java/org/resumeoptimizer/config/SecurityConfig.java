@@ -21,7 +21,6 @@ public class SecurityConfig {
                         .requestMatchers("/", "/home", "/register", "/login", "/guest").permitAll()
                         .requestMatchers("/upload", "/process/**").hasAnyAuthority("ROLE_USER", "ROLE_GUEST")
                         .requestMatchers("/return", "/stop", "/dashboard", "/scores").hasAnyAuthority("ROLE_USER", "ROLE_GUEST") // Allow /stop
-                        // .requestMatchers("/dashboard", "/scores").hasAuthority("ROLE_USER") // Restrict to logged users
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form
